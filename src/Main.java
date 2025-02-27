@@ -17,5 +17,6 @@ public class Main {
         else {
             System.out.println("Le compte n'existe pas");
         }
+        System.out.println(UserRepository.findAll());
     }
 }

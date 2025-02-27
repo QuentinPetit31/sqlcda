@@ -1,5 +1,7 @@
 package com.adrar.sqlcda.model;
 
+import javax.management.relation.Role;
+
 public class User {
     /*
      * Attributs
@@ -9,6 +11,7 @@ public class User {
     private String lastname;
     private String email;
     private String password;
+    private Roles roles;
 
     /*
      * Constructeurs
@@ -20,6 +23,8 @@ public class User {
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+
+
     }
 
     /*
@@ -65,6 +70,10 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Roles getRolesName() { return roles; }
+
+    public void setRolesName(Roles roles) { this.roles = roles; }
 
     /*
      * Méthodes

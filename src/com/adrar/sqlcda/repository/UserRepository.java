@@ -6,6 +6,11 @@ import com.adrar.sqlcda.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class UserRepository {
     /*
@@ -73,4 +78,54 @@ public class UserRepository {
         }
         return getUser;
     }
+
+    public static User findByEmail(String email) {
+        User findUser = null;
+        try {
+            String sql = "SELECT id, firstname, lastname, email FROM users WHERE email = ?";
+            //Préparer la requête
+            PreparedStatement prepare = connection.prepareStatement(sql);
+            //Bind un paramètre
+            prepare.setString(1, email);
+            //Exécuter la requête
+            ResultSet resultSet = prepare.executeQuery();
+            if(resultSet.next()){
+                findUser = new User();
+                findUser.setId(resultSet.getInt("id"));
+                findUser.setFirstname(resultSet.getString("firstname"));
+                findUser.setLastname(resultSet.getString("lastname"));
+                findUser.setEmail(resultSet.getString("email"));
+
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return findUser;
+    }
+
+
+    public static List<User>  findAll() {
+        List<User> findUsers =  new ArrayList<>();;
+        try {
+            String sql = "SELECT id, firstname, lastname, email FROM users";
+
+            //Préparer la requête
+            PreparedStatement prepare = connection.prepareStatement(sql);
+
+            //Exécuter la requête
+            ResultSet resultSet = prepare.executeQuery();
+            while (resultSet.next()){
+                User find = new User();
+                find.setId(resultSet.getInt("id"));
+                find.setFirstname(resultSet.getString("firstname"));
+                find.setLastname(resultSet.getString("lastname"));
+                find.setEmail(resultSet.getString("email"));
+                findUsers.add(find);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return findUsers;
+    }
+
 }
