@@ -71,9 +71,9 @@ public class User {
         this.password = password;
     }
 
-    public Roles getRolesName() { return roles; }
+    public Roles getRoles() { return roles; }
 
-    public void setRolesName(Roles roles) { this.roles = roles; }
+    public void setRoles(Roles roles) { this.roles = roles; }
 
     /*
      * Méthodes
