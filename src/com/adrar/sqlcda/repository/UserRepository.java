@@ -9,8 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 public class UserRepository {
     /*
@@ -22,7 +20,7 @@ public class UserRepository {
     /*
      * Méthodes (CRUD)
      * */
-    //Méthode pour ajouter
+    //Méthode pour ajouter un User
     public static User save(User addUser) {
         //Créer un objet user
         User newUser = null;
@@ -57,6 +55,7 @@ public class UserRepository {
         return newUser;
     }
 
+    //Méthode pour vérifier si un User existe
     public static boolean isExist(String email) {
         boolean getUser = false;
         try {
@@ -79,6 +78,7 @@ public class UserRepository {
         return getUser;
     }
 
+    //Méthode pour récupérer un compte par son Email
     public static User findByEmail(String email) {
         User findUser = null;
         try {
@@ -95,7 +95,6 @@ public class UserRepository {
                 findUser.setFirstname(resultSet.getString("firstname"));
                 findUser.setLastname(resultSet.getString("lastname"));
                 findUser.setEmail(resultSet.getString("email"));
-
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -103,29 +102,75 @@ public class UserRepository {
         return findUser;
     }
 
-
-    public static List<User>  findAll() {
-        List<User> findUsers =  new ArrayList<>();;
+    //Méthode pour récupérer tous les comptes User dans une List
+    public static List<User> findAll(){
+        List<User> findUsers = new ArrayList<>();
         try {
             String sql = "SELECT id, firstname, lastname, email FROM users";
-
-            //Préparer la requête
-            PreparedStatement prepare = connection.prepareStatement(sql);
-
-            //Exécuter la requête
-            ResultSet resultSet = prepare.executeQuery();
-            while (resultSet.next()){
-                User find = new User();
-                find.setId(resultSet.getInt("id"));
-                find.setFirstname(resultSet.getString("firstname"));
-                find.setLastname(resultSet.getString("lastname"));
-                find.setEmail(resultSet.getString("email"));
-                findUsers.add(find);
+            //Préparation de la requête
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            //Exécution de la requête
+            ResultSet resultSet = preparedStatement.executeQuery();
+            //Ajout dans la liste des User
+            while(resultSet.next()){
+                User user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setFirstname(resultSet.getString("firstname"));
+                user.setLastname(resultSet.getString("lastname"));
+                user.setEmail(resultSet.getString("email"));
+                findUsers.add(user);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
         return findUsers;
     }
 
+    //Méthode qui met à jour un User et retourne User modifié
+    public static User update(User user, String email){
+        User updateUser = null;
+        try {
+            String sql = "UPDATE users SET firstname = ?, lastname = ?, email = ? WHERE email = ?";
+            //préparation de la requête
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            //Bind des paramètres
+            preparedStatement.setString(1, user.getFirstname());
+            preparedStatement.setString(2, user.getLastname());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, email);
+            //Exécution de la requête
+            int  nbrRows = preparedStatement.executeUpdate();
+            if(nbrRows > 0){
+                updateUser = user;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return updateUser;
+    }
+
+    //Méthode qui ajouter un User avec son role
+    public static User saveWithRoles(User addUser) {
+        User newUser = null;
+        try {
+            String sql = "INSERT INTO users(firstname, lastname, email, password, roles_id)" +
+                    "VALUE(?,?,?,?,(SELECT id FROM roles WHERE roles_name = ?))";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            //Bind des 5 paramètres
+            preparedStatement.setString(1, addUser.getFirstname());
+            preparedStatement.setString(2, addUser.getLastname());
+            preparedStatement.setString(3, addUser.getEmail());
+            preparedStatement.setString(4, addUser.getPassword());
+            preparedStatement.setString(5, addUser.getRoles().getRolesName());
+            int nbrRows = preparedStatement.executeUpdate();
+            if(nbrRows > 0){
+                newUser = addUser;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return newUser;
+    }
 }
